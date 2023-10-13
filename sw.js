@@ -1,5 +1,18 @@
+const CACHE_NAME = 'pwa-cache';
+
 self.addEventListener('install', event => {
     self.skipWaiting();
+
+    event.waitUntil(
+        caches.open(CACHE_NAME)
+            .then(cache => cache.addAll([
+                "cute1.jpg",
+                "cute2.jpg",
+                "/",
+                "/index.html",
+                "/404.html",
+            ]))
+    );
 });
 
 self.addEventListener('activate', event => {
@@ -8,23 +21,26 @@ self.addEventListener('activate', event => {
 
 self.addEventListener('fetch', event => {
     
-    // 攔截到我想要攔截的圖片，並且回傳我想要的圖片
-    // if (/cute1.jpg$/.test(event.request.url)) {
-    //     // return event.respondWith(fetch("/cute2.jpg"))
-    // }
-
-    // 客製化 404 頁面
-    if (event.request.mode === 'navigate') {
-        return event.respondWith(
-            fetch(event.request).then(response => {
-                if (response.status === 404) {
+    return event.respondWith(
+        fetch(event.request)
+            .then(res => {
+                if (event.request.mode === 'navigate' && res.status === 404) {
                     return fetch('/404.html');
                 }
-
-                return response;
+                return res;
             })
-        );
-    }
+            .catch(err => {
+                return caches.open(CACHE_NAME)
+                    .then(cache => {
+                        return cache.match(event.request).then(response => {
+                            if (response) {
+                                return response;
+                            }
+                            return cache.match('/404.html');
+                        })
+                    });
+            })
+    );
 });
 
 
