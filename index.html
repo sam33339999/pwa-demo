@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>第一個 PWA 應用程式</title>
+</head>
+<body>
+    <h1>第一個 PWA 應用程式</h1>
+
+    <img src="./cute1.jpg" alt="cute animal">
+
+    <script type="module">
+        navigator.serviceWorker
+            .register('sw.js')
+            .then(() => {
+                console.log("sw.js 註冊成功");
+            }).catch(e => {
+                console.error("sw.js 註冊失敗", e)
+            });
+    </script>
+</body>
+</html>
